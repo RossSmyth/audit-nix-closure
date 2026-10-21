@@ -91,7 +91,7 @@ fn main() {
         vulns.into_iter().for_each(|vuln| {
             writeln!(
                 stdout,
-                "{store_path:?}, {}, {}, {}",
+                r#"""{store_path:?}, "{}", "{}", "{}""""#,
                 vuln.package.name.as_str(),
                 vuln.advisory.id.as_str(),
                 vuln.advisory.title.as_str(),
