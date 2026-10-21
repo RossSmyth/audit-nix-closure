@@ -114,6 +114,7 @@ dependencies = [
  "dirs",
  "rayon",
  "rustsec",
+ "serde_json",
  "walkdir",
 ]
 
