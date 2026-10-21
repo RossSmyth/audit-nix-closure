@@ -4,7 +4,12 @@
   pkgs ? import inputs.nixpkgs { inherit system; },
 }:
 let
-  inherit (pkgs) rustPlatform lib pkg-config aws-lc;
+  inherit (pkgs)
+    rustPlatform
+    lib
+    pkg-config
+    aws-lc
+    ;
 in
 rustPlatform.buildRustPackage {
   pname = "audit-nix-closure";
@@ -28,6 +33,11 @@ rustPlatform.buildRustPackage {
   ];
 
   env.AWS_LC_SYS_USE_SYSTEM = true;
-  
+
   cargoLock.lockFile = ./Cargo.lock;
+
+  meta = {
+    license = lib.licenses.blueOak100;
+    mainProgram = "audit-nix-closure";
+  };
 }
