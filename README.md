@@ -3,11 +3,15 @@
 Audits a nix closure for Rust executables, then outputs either json or markdown.
 
 > [!NOTE]
-> Downloads the rustsec advisory database to "${XDG_CACHE_HOME:-"$HOME/.cache"}/audit-nix-closure"
+> Downloads the rustsec advisory database to `"${XDG_CACHE_HOME:-"$HOME/.cache"}/audit-nix-closure"`
 
 ## How to use
 
 `audit-nix-closure /run/current-system`
+
+or
+
+`audit-nix-closure --json /run/current-system`
 
 ## TODO
 
