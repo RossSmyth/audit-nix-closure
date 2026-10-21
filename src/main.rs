@@ -9,6 +9,7 @@ use std::{
     time::Duration,
 };
 
+use clap::arg;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use rustsec::{
     Database,
@@ -19,10 +20,27 @@ use rustsec::{
 };
 use walkdir::WalkDir;
 
+fn get_args() -> clap::ArgMatches {
+    clap::Command::new("audit-nix-closure")
+        .version(env!("CARGO_PKG_VERSION"))
+        .about("Audit a nix closure for vulnerabilities in Rust executables.")
+        .arg(arg!(--json).help("Output JSON rather than markdownish"))
+        .arg(
+            arg!([store_path])
+                .required(true)
+                .value_name("STORE_PATH")
+                .help("Nix store path to analyze"),
+        )
+        .get_matches()
+}
+
 fn main() {
-    let Some(closure) = std::env::args_os().skip(1).next() else {
-        panic!("No store path to analyze. Must be the only argument.")
-    };
+    let args = get_args();
+    let closure = args
+        .get_raw("store_path")
+        .unwrap()
+        .last()
+        .expect("Requires the last argument to be a nix store path.");
 
     let closure_analysis = Command::new("nix-store").arg("-qR").arg(closure).output();
     let store_paths = match closure_analysis {
