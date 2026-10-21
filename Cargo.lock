@@ -57,6 +57,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1505bd5d3d116872e7271a6d4e16d81d0c8570876c8de68093a09ac269d8aac0"
 
 [[package]]
+name = "audit-nix-closure"
+version = "0.1.0"
+dependencies = [
+ "rayon",
+ "rustsec",
+ "walkdir",
+]
+
+[[package]]
 name = "auditable-extract"
 version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1995,15 +2004,6 @@ name = "multiversion_no_op"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "743fb55ba31b18fb1ecef6bdc9aa2743314978ac084044301a7eee33fb99a20d"
-
-[[package]]
-name = "nix-audit-closure"
-version = "0.1.0"
-dependencies = [
- "rayon",
- "rustsec",
- "walkdir",
-]
 
 [[package]]
 name = "nonempty"
