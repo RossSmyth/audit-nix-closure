@@ -3,7 +3,7 @@
 Audits a nix closure for Rust executables, then spews out all their crap to stdout.
 
 > [!NOTE]
-> Currently unconditionally downloads the rustsec advisory db to CARGO_HOME.
+> Downloads the rustsec advisory database to "${XDG_CACHE_HOME:-"$HOME/.cache"}/audit-nix-closure"
 
 ## How to use
 
@@ -13,3 +13,4 @@ Audits a nix closure for Rust executables, then spews out all their crap to stdo
 
 * Improve output
 * More configurable
+* Audit other things?
