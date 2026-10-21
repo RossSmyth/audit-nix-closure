@@ -7,7 +7,7 @@ let
   inherit (pkgs) rustPlatform lib pkg-config aws-lc;
 in
 rustPlatform.buildRustPackage {
-  pname = "nix-audit-closure";
+  pname = "audit-nix-closure";
   version = "0.1.0";
 
   src = lib.fileset.toSource {
