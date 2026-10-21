@@ -13,6 +13,7 @@ use clap::arg;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use rustsec::{
     Database,
+    advisory::Id,
     binary_scanning::load_deps_from_binary,
     database::Query,
     platforms::{Arch, OS},
@@ -133,6 +134,16 @@ fn main() {
                                 "date".to_string(),
                                 serde_json::Value::from(vuln.advisory.date.as_str()),
                             );
+                            map.insert(
+                                "aliases".to_string(),
+                                serde_json::Value::from(
+                                    vuln.advisory
+                                        .aliases
+                                        .iter()
+                                        .map(Id::as_str)
+                                        .collect::<Vec<_>>(),
+                                ),
+                            );
 
                             if let Some(url) = &vuln.advisory.url {
                                 map.insert(
@@ -160,6 +171,21 @@ fn main() {
                 writeln!(stdout, "title: {}", vuln.advisory.title).unwrap();
                 writeln!(stdout, "package: {}", vuln.advisory.package).unwrap();
                 writeln!(stdout, "date: {}", vuln.advisory.date).unwrap();
+
+                if !vuln.advisory.aliases.is_empty() {
+                    writeln!(
+                        stdout,
+                        "aliases: {}",
+                        vuln.advisory
+                            .aliases
+                            .iter()
+                            .map(Id::as_str)
+                            .collect::<Vec<_>>()
+                            .join(", ")
+                    )
+                    .unwrap();
+                }
+
                 if let Some(url) = vuln.advisory.url {
                     writeln!(stdout, "url: {}", url).unwrap();
                 }
