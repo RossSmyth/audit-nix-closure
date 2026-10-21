@@ -12,6 +12,8 @@ mkShell {
     nix-audit-closure
   ];
 
+  env.AWS_LC_SYS_USE_SYSTEM = true;
+
   packages = with pkgs; [
     clippy
     rust-analyzer
