@@ -130,10 +130,6 @@ fn main() {
                                 serde_json::Value::from(vuln.advisory.title.as_str()),
                             );
                             map.insert(
-                                "title".to_string(),
-                                serde_json::Value::from(vuln.advisory.description.as_str()),
-                            );
-                            map.insert(
                                 "date".to_string(),
                                 serde_json::Value::from(vuln.advisory.date.as_str()),
                             );
@@ -153,5 +149,22 @@ fn main() {
         }
 
         writeln!(stdout, "{}", serde_json::Value::Object(json).to_string()).unwrap();
+    } else {
+        writeln!(stdout, "# Rustsec audit of {closure:?}").unwrap();
+
+        for (store_path, vulns) in vulns {
+            writeln!(stdout, "## '{}'\n", store_path.to_string_lossy()).unwrap();
+
+            for vuln in vulns {
+                writeln!(stdout, "### {}", vuln.advisory.id).unwrap();
+                writeln!(stdout, "title: {}", vuln.advisory.title).unwrap();
+                writeln!(stdout, "package: {}", vuln.advisory.package).unwrap();
+                writeln!(stdout, "date: {}", vuln.advisory.date).unwrap();
+                if let Some(url) = vuln.advisory.url {
+                    writeln!(stdout, "url: {}", url).unwrap();
+                }
+                writeln!(stdout, "").unwrap();
+            }
+        }
     }
 }
