@@ -1,6 +1,6 @@
 use std::{
     ffi::{OsStr, OsString},
-    io::BufRead,
+    io::Write,
     os::unix::{
         ffi::{OsStrExt, OsStringExt},
         fs::PermissionsExt,
@@ -8,6 +8,13 @@ use std::{
     process::Command,
 };
 
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+use rustsec::{
+    Database,
+    binary_scanning::load_deps_from_binary,
+    database::Query,
+    platforms::{Arch, OS},
+};
 use walkdir::WalkDir;
 
 fn main() {
@@ -39,5 +46,43 @@ fn main() {
                 executable_paths.push(entry.into_path());
             }
         }
+    }
+
+    let vuln_db = Database::fetch().unwrap();
+
+    let query = Query::crate_scope()
+        .target_arch(vec![Arch::X86_64])
+        .target_os(vec![OS::Linux]);
+
+    let vulns: Vec<_> = executable_paths
+        .par_iter()
+        .map(|path| {
+            let path = path.as_path();
+            let contents = std::fs::read(path).unwrap();
+
+            let lock_file = match load_deps_from_binary(&contents, Some(usize::MAX)) {
+                Ok((_, rustsec::binary_scanning::BinaryReport::Complete(report))) => report,
+                _ => return None,
+            };
+
+            Some((path, vuln_db.query_vulnerabilities(&lock_file, &query)))
+        })
+        .flatten()
+        .filter(|(_, vulns)| !vulns.is_empty())
+        .collect();
+
+    let mut stdout = std::io::stdout().lock();
+
+    for (store_path, vulns) in vulns {
+        vulns.into_iter().for_each(|vuln| {
+            writeln!(
+                stdout,
+                "{store_path:?}, {}, {}, {}",
+                vuln.package.name.as_str(),
+                vuln.advisory.id.as_str(),
+                vuln.advisory.title.as_str(),
+            )
+            .unwrap();
+        });
     }
 }
