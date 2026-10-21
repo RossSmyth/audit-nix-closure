@@ -105,16 +105,53 @@ fn main() {
 
     let mut stdout = std::io::stdout().lock();
 
-    for (store_path, vulns) in vulns {
-        vulns.into_iter().for_each(|vuln| {
-            writeln!(
-                stdout,
-                r#"""{store_path:?}, "{}", "{}", "{}""""#,
-                vuln.package.name.as_str(),
-                vuln.advisory.id.as_str(),
-                vuln.advisory.title.as_str(),
-            )
-            .unwrap();
-        });
+    if args.get_flag("json") {
+        let mut json = serde_json::Map::with_capacity(vulns.len());
+
+        for (store_path, vulns) in vulns {
+            json.insert(
+                store_path.to_string_lossy().into_owned(),
+                serde_json::Value::Array(
+                    vulns
+                        .iter()
+                        .map(|vuln| {
+                            let mut map = serde_json::Map::new();
+
+                            map.insert(
+                                "id".to_string(),
+                                serde_json::Value::from(vuln.advisory.id.as_str()),
+                            );
+                            map.insert(
+                                "package".to_string(),
+                                serde_json::Value::from(vuln.advisory.package.as_str()),
+                            );
+                            map.insert(
+                                "title".to_string(),
+                                serde_json::Value::from(vuln.advisory.title.as_str()),
+                            );
+                            map.insert(
+                                "title".to_string(),
+                                serde_json::Value::from(vuln.advisory.description.as_str()),
+                            );
+                            map.insert(
+                                "date".to_string(),
+                                serde_json::Value::from(vuln.advisory.date.as_str()),
+                            );
+
+                            if let Some(url) = &vuln.advisory.url {
+                                map.insert(
+                                    "url".to_string(),
+                                    serde_json::Value::from(url.as_str()),
+                                );
+                            }
+
+                            map.into()
+                        })
+                        .collect(),
+                ),
+            );
+        }
+
+        writeln!(stdout, "{}", serde_json::Value::Object(json).to_string()).unwrap();
     }
 }
