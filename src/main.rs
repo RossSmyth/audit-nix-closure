@@ -6,6 +6,7 @@ use std::{
         fs::PermissionsExt,
     },
     process::Command,
+    time::Duration,
 };
 
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
@@ -14,6 +15,7 @@ use rustsec::{
     binary_scanning::load_deps_from_binary,
     database::Query,
     platforms::{Arch, OS},
+    repository,
 };
 use walkdir::WalkDir;
 
@@ -48,7 +50,19 @@ fn main() {
         }
     }
 
-    let vuln_db = Database::fetch().unwrap();
+    let cache_dir = dirs::cache_dir()
+        .expect("Unable to find cache dir, usually at XDG_CACHE_HOME or something")
+        .join("audit-nix-closure");
+
+    let repo = repository::git::Repository::fetch(
+        repository::git::DEFAULT_URL,
+        cache_dir,
+        true,
+        Duration::from_secs(10),
+    )
+    .expect("Unable to get vulnerability db");
+
+    let vuln_db = Database::load_from_repo(&repo).unwrap();
 
     let query = Query::crate_scope()
         .target_arch(vec![Arch::X86_64])
