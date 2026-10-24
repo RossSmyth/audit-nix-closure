@@ -2,6 +2,10 @@
 
 Audits a nix closure for Rust executables, then outputs either json or markdown.
 
+> [!WARNING]
+> There are many false positives reported, as all this tool can do is inspect the lockfile and report anything in the lockfile that is in the rustsec db.
+> Verify that the program actually uses the dependency as-built before taking any actions. 
+
 > [!NOTE]
 > Downloads the rustsec advisory database to `"${XDG_CACHE_HOME:-"$HOME/.cache"}/audit-nix-closure"`
 
